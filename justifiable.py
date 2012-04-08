@@ -1,4 +1,4 @@
-import csv
+import csv, json
 from statelist import STATES, getStateAbbr
 
 infile = 'GuardianJustifiableHomicideData.csv'
@@ -19,14 +19,17 @@ def getData(crimefile=infile):
     f = open(crimefile, 'rU')
     reader = csv.DictReader(f)
 
-    out = {}
+    out = []
 
     for row in reader:
         for key in ('', 'stateyear', None):
             if key in row.keys(): del row[key]
         row['state'] = getStateAbbr(row['state'])
         row = { k: numberize(v) for k, v in row.iteritems() }
-        print row
+        out.append(row)
 
-    f.close()    
+    f.close()
     return out
+
+if __name__ == "__main__":
+    print json.dumps(getData(), indent=4, sort_keys=True)

@@ -1,4 +1,4 @@
-import csv, re
+import csv, re, json
 from statelist import STATES, getStateAbbr
 
 infile = 'CrimeStateByState.csv'
@@ -14,34 +14,35 @@ def getData(crimefile=infile):
     f = open(crimefile, 'rU')
     reader = csv.reader(f)
 
-    out = {}
+    out = []
 
     for row in reader:
         # no data, move along
         if len(row) == 0: continue
-    
+
         # possible we have a new state
         state_shift = re.match(state_title, row[0])
         if state_shift:
             state = state_shift.groups()[0]
             state = getStateAbbr(state)
-            if state not in out.keys():
-                out[state] = []
-    
+
         # other text rows we can ignore
         try:
             int(row[0])
         except ValueError:
             continue
-    
+
         # data!
         rowdata = dataRowToDict(row)
+        rowdata['state'] = state
         # for now we only need 2001-2010 so
         if rowdata['year'] < 2001: continue
-    
-        out[state].append(rowdata)
+
+        out.append(rowdata)
 
 
-    f.close()    
+    f.close()
     return out
 
+if __name__ == "__main__":
+    print json.dumps(getData(), indent=4, sort_keys=True)
