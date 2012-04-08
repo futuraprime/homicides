@@ -5,7 +5,7 @@ infile = 'GuardianJustifiableHomicideData.csv'
 
 def numberize(s):
     val = s
-    if s is '': return None
+    if s is '': return 0
     try:
         val = int(s)
     except ValueError:
