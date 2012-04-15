@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Homicides/Justifiable</title>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script src="underscore.js" type="text/javascript" charset="utf-8"></script>
+	<script src="d3.v2.js" type="text/javascript" charset="utf-8"></script>
+	
+	<script type="text/javascript" src="http://use.typekit.com/kso0koy.js"></script>
+	<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+	
+	<style type="text/css">
+		body {
+			background-color: #DFE2E6;
+		}
+		.chart rect {
+			fill: #236598;
+		}
+		.chart .syg {
+			fill: #BF2928;
+		}
+		.chart .label {
+			font-family: "calluna-sans";
+			font-size: 10px;
+		}
+	</style>
+</head>
+<body>
+	<div id="chart"></div>
+	
+	<script type="text/javascript" charset="utf-8">
+		var chartEl = document.getElementById('chart');
+		$.getJSON('datafile.json', function(data) {
+			var h = 400, space = 16;
+			var chart = d3.select(chartEl).append('svg')
+				.attr('class', 'chart')
+				.attr('width', 900)
+				.attr('height', h + 20);
+			
+			data = _.sortBy(data, function(x) { return x.ratio }).reverse();
+			
+			var pos = 6
+			
+			var x = d3.scale.linear()
+				.domain([0, _.max(_.pluck(data, 'ratio'))])
+				.range([0, h]);
+			
+			var y = d3.scale.linear()
+				.domain([0, _.reduce(_.pluck(data, 'avg_murder_rate'), function(memo, num){ return memo + num; }, 0)])
+				.range([0, 900]);
+			
+			chart.selectAll('rect')
+				.data(data)
+			.enter().append('rect')
+				.attr('x', function(d, i) { return i * space + space / 2; })
+				.attr('y', function(d) { return h - x(d.ratio); })
+				.attr('height', function(d) { return x(d.ratio); })
+				.attr('width', function(d) { return d.avg_murder_rate; })
+				.attr('class', function(d) {
+					return d['syg'] ? 'syg' : '';
+				});
+			chart.selectAll('text.label')
+				.data(data)
+			.enter().append('text')
+				.text(function(x) { return x['abbr']; })
+				.attr('class', 'label')
+				.attr('x', function(d, i) { return (i + 1) * space; })
+				.attr('y', h + 20)
+				.attr('text-anchor', 'middle')
+				.attr('dy', -3)
+				.attr('dx', -5);
+		});
+	</script>
+</body>
+</html>

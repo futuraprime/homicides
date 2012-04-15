@@ -2,26 +2,33 @@ from __future__ import division
 import concat, json
 from statelist import STATES
 
-data = concat.processData()
+def processData():
+    data = concat.processData()
 
-out = {}
+    out = []
 
-for state in STATES:
-    st_data = [x for x in data if x['state'] == state['abbr']]
-    if not len(st_data): continue
+    for state in STATES:
+        st_data = [x for x in data if x['state'] == state['abbr']]
+        if not len(st_data): continue
     
-    homicide_total = sum(x['homicide'] for x in st_data)
-    justifiable_total = sum(x['justifiable'] for x in st_data)
-    ratio = justifiable_total / homicide_total
+        homicide_total = sum(x['homicide'] for x in st_data)
+        justifiable_total = sum(x['justifiable'] for x in st_data)
+        average_murder_rate = homicide_total / (sum(x['population'] for x in st_data)/100000)
+        ratio = justifiable_total / homicide_total
     
-    syg = True if sum(x['syg'] for x in st_data) > 0 else False
+        syg = True if sum(x['syg'] for x in st_data) > 0 else False
     
-    out[state['abbr']] = {
-        'state': state['name'],
-        'homicide': homicide_total,
-        'justifiable': justifiable_total,
-        'ratio': ratio,
-        'syg': syg,
-    }
+        out.append({
+            'state': state['name'],
+            'abbr' : state['abbr'],
+            'homicide': homicide_total,
+            'justifiable': justifiable_total,
+            'avg_murder_rate': average_murder_rate,
+            'ratio': ratio,
+            'syg': syg,
+        })
     
-print json.dumps(out, indent=4, sort_keys=True)
+    return out
+    
+if __name__ == "__main__":
+    print json.dumps(processData(), indent=4, sort_keys=True)
